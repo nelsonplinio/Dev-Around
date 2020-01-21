@@ -1,6 +1,7 @@
 import React from "react";
 import { StatusBar, YellowBox } from "react-native";
 import Routes from "./src/routes";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 YellowBox.ignoreWarnings(["Unrecognized WebSocket"]);
 
@@ -12,7 +13,9 @@ export default function App() {
         barStyle="light-content"
         translucent={true}
       />
-      <Routes />
+      <SafeAreaProvider>
+        <Routes />
+      </SafeAreaProvider>
     </>
   );
 }
