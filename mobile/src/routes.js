@@ -4,6 +4,7 @@ import { createStackNavigator } from "react-navigation-stack";
 import Main from "./pages/Main";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 
 const appRoutes = createStackNavigator(
   {
@@ -30,16 +31,27 @@ const appRoutes = createStackNavigator(
   }
 );
 
-const loginRoutes = createStackNavigator(
-  {
-    Login: {
-      screen: Login,
-      navigationOptions: {
-        header: null
-      }
+const loginRoutes = createStackNavigator({
+  Login: {
+    screen: Login,
+    navigationOptions: {
+      header: null
     }
   },
-);
+  SignUp: {
+    screen: SignUp,
+    navigationOptions: {
+      title: "Registro",
+      headerTitleStyle: {
+        minWidth: 150
+      },
+      headerStyle: {
+        backgroundColor: "#7D40e7"
+      },
+      headerTintColor: "#fff",
+    }
+  }
+});
 
 const Routes = createAppContainer(
   createSwitchNavigator(

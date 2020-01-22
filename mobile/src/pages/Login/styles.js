@@ -56,7 +56,6 @@ export const SignInButton = styled.TouchableOpacity`
   elevation: 4;
 
   opacity: ${({ loading, disabled }) => {
-    console.log(loading, disabled)
     if (disabled && !loading) {
       return 0.6;
     } else {

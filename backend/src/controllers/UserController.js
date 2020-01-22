@@ -35,13 +35,17 @@ module.exports = {
       }
     };
 
-    const location = {
-      type: "Point",
-      coordinates: [longitude, latitude]
-    };
+    let location;
 
-    const arrayTechs = techs.split(",").map(tech => tech.trim());
-    
+    if (longitude && latitude) {
+      location = {
+        type: "Point",
+        coordinates: [longitude, latitude]
+      };
+    }
+
+    const arrayTechs = (techs || "").split(",").map(tech => tech.trim());
+
     user = await User.create({
       username,
       password: generatePasswordHash(password),
@@ -52,11 +56,11 @@ module.exports = {
 
     // filtar as conexões
     const sendSocketMessageTo = findConnections(
-      {longitude, latitude},
+      { longitude, latitude },
       arrayTechs
     );
-    console.log(sendSocketMessageTo)
-    sendMessage(sendSocketMessageTo, 'new-user', user);
+    console.log(sendSocketMessageTo);
+    sendMessage(sendSocketMessageTo, "new-user", user);
 
     return res.json(user);
   },
