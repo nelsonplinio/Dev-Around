@@ -8,7 +8,7 @@ import colors from "../../theme/colors";
 const { width, height } = Dimensions.get("window");
 
 export const Container = styled(LinearGradient).attrs({
-  start: [0, 0],
+  start: [0.5, 0.3],
   end: [1, 1],
   colors: ["#7d40e7", "#a336dd", "#c12ad2", "#da1dc5", "#ee13b8"]
 })`
