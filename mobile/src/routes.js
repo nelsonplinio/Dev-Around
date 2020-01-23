@@ -1,35 +1,103 @@
+import React from "react";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
-
-import Main from "./pages/Main";
+import { createBottomTabNavigator } from "react-navigation-tabs";
+import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
+// import Main from "./pages/Main";
 import Profile from "./pages/Profile";
+import Map from "./pages/Map";
+import Home from "./pages/Home";
+import MyProfile from "./pages/MyProfile";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 
-const appRoutes = createStackNavigator(
+// const appRoutes = createStackNavigator(
+//   {
+//     Main: {
+//       screen: Main,
+//       navigationOptions: {
+//         title: "Dev Around"
+//       }
+//     },
+//     Profile: {
+//       screen: Profile,
+//       navigationOptions: {
+//         title: "Perfil"
+//       }
+//     }
+//   },
+//   {
+//     defaultNavigationOptions: {
+//       headerStyle: {
+//         backgroundColor: "#7D40e7"
+//       },
+//       headerTintColor: "#fff"
+//     }
+//   }
+// );
+
+const appRoutes = createBottomTabNavigator(
   {
-    Main: {
-      screen: Main,
+    Home: {
+      screen: Home,
       navigationOptions: {
-        title: "Dev Around"
+        tabBarIcon: ({ focused, tintColor }) => (
+          <MaterialCommunityIcons
+            name={focused ? "home-variant" : "home-variant-outline"}
+            color={tintColor}
+            size={24}
+          />
+        )
       }
     },
-    Profile: {
-      screen: Profile,
+    Map: {
+      screen: Map,
       navigationOptions: {
-        title: "Perfil"
+        title: "Mapa",
+        tabBarIcon: ({ focused, tintColor }) => (
+          <FontAwesome
+            name={focused ? "map" : `map-o`}
+            size={24}
+            color={tintColor}
+          />
+        )
+      }
+    },
+    MyProfile: {
+      screen: MyProfile,
+      navigationOptions: {
+        title: "Perfíl",
+        tabBarIcon: ({ focused, tintColor }) => (
+          <FontAwesome
+            name={focused ? "user" : `user-o`}
+            size={24}
+            color={tintColor}
+          />
+        )
       }
     }
   },
   {
-    defaultNavigationOptions: {
-      headerStyle: {
-        backgroundColor: "#7D40e7"
+    tabBarOptions: {
+      activeTintColor: "#7D40e7",
+      allowFontScaling: true,
+      labelStyle: {
+        fontWeight: "bold"
       },
-      headerTintColor: "#fff"
+      keyboardHidesTabBar: true
     }
   }
 );
+
+function getTabIcon({ name, focused, tintColor }) {
+  return (
+    <FontAwesome
+      name={focused ? name : `${name}-o`}
+      size={24}
+      color={tintColor}
+    />
+  );
+}
 
 const loginRoutes = createStackNavigator({
   Login: {
@@ -48,7 +116,7 @@ const loginRoutes = createStackNavigator({
       headerStyle: {
         backgroundColor: "#7D40e7"
       },
-      headerTintColor: "#fff",
+      headerTintColor: "#fff"
     }
   }
 });

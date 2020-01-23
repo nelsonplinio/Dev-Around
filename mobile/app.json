@@ -13,16 +13,13 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "androidStatusBar": { "backgroundColor": "#7D40e7" },
+    
     "updates": {
       "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
-    },
-    "android": {
-      "resizeMode": "contain"
     }
   }
 }

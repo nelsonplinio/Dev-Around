@@ -72,8 +72,18 @@ module.exports = {
   },
 
   async show(req, res) {
-    console.log(req.userId);
+    const { id } = req.params;
+    const user = await User.findById(id);
 
-    return res.json({ ok: "ok" });
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+
+    return res.json({
+      ...user.toJSON(),
+      password: undefined,
+    });
   }
 };
