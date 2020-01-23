@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Alert } from "react-native";
 import { useSafeArea } from "react-native-safe-area-context";
 
-import api from "../../services/api";
+import api, { removeAutorization } from "../../services/api";
+import { removeAccessToken } from "../../services/user";
 
 import {
   ScrollContainer,
@@ -20,11 +21,10 @@ import {
   MenuItemTitle,
   MenuItemSubtitle,
   MenuItemIndicator,
-  MenuItemTextContainer,
-  MenuItemIconSocial
+  MenuItemTextContainer
 } from "./styles";
 
-export default function MyProfile() {
+export default function MyProfile({ navigation }) {
   const insets = useSafeArea();
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
@@ -34,8 +34,7 @@ export default function MyProfile() {
       const { data } = await api.get("/profiles");
       setTimeout(() => {
         setUser(data);
-      }, 2000)
-      
+      }, 3000);
     } catch ({ response }) {
       Alert.alert("Ocorreu algo inesperado", response.data.message);
     }
@@ -45,6 +44,14 @@ export default function MyProfile() {
   useEffect(() => {
     loadProfile();
   }, []);
+
+  async function handleSignOut() {
+    await removeAccessToken();
+    removeAutorization();
+    navigation.navigate("loginRoutes");
+
+    await api.delete("/sessins");
+  }
 
   return (
     <ScrollContainer>
@@ -56,7 +63,9 @@ export default function MyProfile() {
 
         <Name isEmpty={user.name === undefined}>{user.name}</Name>
 
-        <UserName isEmpty={user.username === undefined}>{user.username}</UserName>
+        <UserName isEmpty={user.username === undefined}>
+          {user.username}
+        </UserName>
 
         <TechsContainer>
           {user.techs &&
@@ -143,7 +152,7 @@ export default function MyProfile() {
               <MenuItemIndicator name="chevron-right" />
             </MenuItemContainer>
           </MenuItem>
-          <MenuItem>
+          <MenuItem onPress={handleSignOut}>
             <MenuItemContainer>
               <MenuItemIcon />
               <MenuItemTextContainer>

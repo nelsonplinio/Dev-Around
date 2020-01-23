@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
-module.exports = (req, res, next) => {
+const AccessToken = require("../models/AccessToken");
+
+module.exports = async (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
@@ -10,8 +12,14 @@ module.exports = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    
+    const accessToken = await AccessToken.findOne({ userId: decoded.id });
 
-    req.userId = decoded.id;
+    if (!accessToken) {
+      throw new Error();
+    }
+    
+    req.userId = accessToken.userId;
 
     return next();
   } catch (error) {

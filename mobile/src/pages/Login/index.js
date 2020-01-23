@@ -3,6 +3,7 @@ import { AsyncStorage, Alert } from "react-native";
 import { useSafeArea } from "react-native-safe-area-context";
 
 import api, { setAccessToken } from "../../services/api";
+import { saveAccessToken, getAccessToken as getAccessTokenSaved } from "../../services/user";
 
 import {
   Container,
@@ -25,7 +26,7 @@ export default function Login({ navigation }) {
 
   useEffect(() => {
     async function getAccessToken() {
-      const accessToken = await AsyncStorage.getItem("access_token");
+      const accessToken = await getAccessTokenSaved();
 
       if (accessToken) {
         navigateToMain(accessToken);
@@ -46,7 +47,7 @@ export default function Login({ navigation }) {
         username,
         password
       });
-
+      saveAccessToken(data.token);
       navigateToMain(data.token);
     } catch ({ response }) {
       Alert.alert("Falha no login", response.data.message);
@@ -59,7 +60,6 @@ export default function Login({ navigation }) {
   }
 
   async function navigateToMain(accessToken) {
-    await AsyncStorage.setItem("access_token", accessToken);
     setAccessToken(accessToken);
     navigation.navigate("appRoutes", { accessToken });
   }

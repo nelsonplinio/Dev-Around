@@ -9,4 +9,8 @@ export function setAccessToken(accessToken) {
   api.defaults.headers.authorization = `Bearer ${accessToken}`;
 }
 
+export function removeAutorization() {
+  api.defaults.headers.authorization = undefined;
+}
+
 export default api;

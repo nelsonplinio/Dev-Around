@@ -29,6 +29,7 @@ export const Name = styled.Text`
   font-size: 30px;
   margin: 8px 8px 0 8px;
   min-width: 180px;
+  text-align: center;
   margin-bottom: 4px;
   border-radius: 16px;
   background: ${({isEmpty}) => isEmpty ? "#f0f0f0": "transparent"};
@@ -40,6 +41,7 @@ export const UserName = styled.Text`
   color: #666;
   font-weight: bold;
   min-width: 100px;
+  text-align: center;
   border-radius: 8px;
   background: ${({isEmpty}) => isEmpty ? "#f0f0f0": "transparent"};
 `;

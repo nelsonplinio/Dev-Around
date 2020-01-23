@@ -34,5 +34,17 @@ module.exports = {
     });
 
     return res.json({ token });
+  },
+
+  async destroy(req, res) {
+    const { userId } = req;
+
+    const accessToken = await AccessToken.findOneAndDelete({ userId });
+
+    if (!accessToken) {
+      return res.status(404).json({ message: "Token not found" });
+    }
+
+    return res.status(200);
   }
 };
