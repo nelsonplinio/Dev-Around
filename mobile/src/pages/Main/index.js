@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useSafeArea } from 'react-native-safe-area-context';
+
 import {
   StyleSheet,
   Image,
@@ -11,7 +13,9 @@ import { MaterialIcons } from "@expo/vector-icons";
 import MapView, { Marker, Callout } from "react-native-maps";
 import {
   requestPermissionsAsync,
-  getCurrentPositionAsync
+  getCurrentPositionAsync,
+  watchPositionAsync,
+  Accuracy
 } from "expo-location";
 
 import api from "./../../services/api";
@@ -21,6 +25,38 @@ export default function Main({ navigation }) {
   const [devs, setDevs] = useState([]);
   const [techs, setTechs] = useState("");
   const [currentRegion, setCurrentRegion] = useState(null);
+  const [user, setUser] = useState(null);
+  const [curUserPosition, setCurUserPosition] = useState({})
+  const [watchId, setWatchId] = useState(0);
+  const insets = useSafeArea();
+
+  useEffect(() => {
+    async function loadUser() {
+      startWachtPosition();
+      const response = await api.get('/profiles');
+      console.log(response.data);
+      setUser(response.data);
+
+      return () => navigator.geolocation.clearWatch(watchId);
+    }
+    loadUser();
+  }, [])
+
+  function startWachtPosition() {
+    const watchId = navigator.geolocation.watchPosition(
+      ({ coords }) => {
+        console.log(coords)
+        const { longitude, latitude } = coords;
+        setCurUserPosition({ latitude, longitude });
+      },
+      (error) => {
+        console.log(error);
+      },
+      { enableHighAccuracy: true, }
+    );
+
+    setWatchId(watchId);
+  }
 
   useEffect(() => {
     async function loadingInitialPosition() {
@@ -36,8 +72,8 @@ export default function Main({ navigation }) {
         setCurrentRegion({
           latitude,
           longitude,
-          latitudeDelta: 0.04,
-          longitudeDelta: 0.04
+          latitudeDelta: 0.004,
+          longitudeDelta: 0.004
         });
       }
     }
@@ -51,14 +87,14 @@ export default function Main({ navigation }) {
       setDevs([...devs, dev])
     })
   }, [devs])
-  
+
   function setupWebsocket() {
     disconnect();
     const { latitude, longitude } = currentRegion;
 
     connect(latitude, longitude, techs);
   }
-  
+
   async function loadDevs() {
     try {
       const { latitude, longitude } = currentRegion;
@@ -72,7 +108,7 @@ export default function Main({ navigation }) {
       });
 
       if (data) {
-        setDevs(data);
+        setDevs(data.filter(dev => dev._id !== user._id));
       }
 
       setupWebsocket();
@@ -90,6 +126,26 @@ export default function Main({ navigation }) {
     navigation.navigate("Profile", { username });
   }
 
+  function showMyPosition() {
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        console.log(coords)
+        const { longitude, latitude } = coords;
+        setCurrentRegion({
+          latitude,
+          longitude,
+          latitudeDelta: 0.004,
+          longitudeDelta: 0.004
+        });
+      },
+      (error) => {
+        console.log(error);
+      },
+      { enableHighAccuracy: true, }
+    );
+
+  }
+
   if (!currentRegion) {
     return null;
   }
@@ -99,29 +155,35 @@ export default function Main({ navigation }) {
       <MapView
         style={styles.map}
         initialRegion={currentRegion}
+        region={currentRegion}
         onRegionChangeComplete={handleRegionChange}
       >
-        <Marker
-          coordinate={{
-            // ...currentRegion
-            latitude: -16.706828,
-            longitude: -49.3308677
-          }}
-        >
-          <Image
-            style={styles.avatar}
-            source={{
-              uri: "https://avatars3.githubusercontent.com/u/14140891?s=460&v=4"
-            }}
-          />
-          <Callout onPress={handleGoToProfile}>
-            <View style={styles.callout}>
-              <Text style={styles.userName}>Nelson Plínio</Text>
-              <Text style={styles.bio}>OI Meu nome e nelson sou foda</Text>
-              <Text style={styles.techs}>ReactJs, React Native, nodeJson </Text>
-            </View>
-          </Callout>
-        </Marker>
+        {
+          user && (
+            <Marker
+              key={user._id}
+              coordinate={{
+                longitude: curUserPosition.longitude,
+                latitude: curUserPosition.latitude
+              }}
+            >
+              <Image
+                style={[styles.avatar, { borderColor: "#7d40e7" }]}
+                source={{
+                  uri: user.avatar_url
+                }}
+              />
+              <Callout onPress={() => handleGoToProfile(user.username)}>
+                <View style={styles.callout}>
+                  <Text style={styles.userName}>{user.name}</Text>
+                  <Text style={styles.bio}>{user.bio}</Text>
+                  <Text style={styles.techs}>{[user.techs || []].join(",")}</Text>
+                </View>
+              </Callout>
+            </Marker>
+          )
+        }
+
 
         {devs.map(dev => (
           <Marker
@@ -148,7 +210,7 @@ export default function Main({ navigation }) {
         ))}
       </MapView>
 
-      <View style={styles.searchContainer}>
+      <View insets={insets} style={[styles.searchContainer, { marginTop: insets.top + 8 }]}>
         <TextInput
           style={styles.searchInput}
           placeholder="Buscar devs por tech..."
@@ -160,9 +222,14 @@ export default function Main({ navigation }) {
           style={styles.searchButton}
           onPress={() => loadDevs()}
         >
-          <MaterialIcons name="my-location" size={25} color="#fff" />
+          <MaterialIcons name="search" size={25} color="#fff" />
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity style={styles.myLocationButton}
+        onPress={() => showMyPosition()}>
+        <MaterialIcons name='my-location' size={25} color="#fff" />
+      </TouchableOpacity>
     </>
   );
 }
@@ -215,5 +282,17 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: "center",
     justifyContent: "center"
+  },
+  myLocationButton: {
+    marginStart: 8,
+    backgroundColor: "#7D40e7",
+    height: 60,
+    width: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    bottom: 16,
+    right: 16,
   }
 });

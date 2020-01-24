@@ -46,7 +46,8 @@ export default function SignUp() {
         techs,
         username,
         password,
-        useGithubInfo
+        useGithubInfo,
+        ...(await getLocation())
       });
 
       Alert.alert(
@@ -60,6 +61,20 @@ export default function SignUp() {
       Alert.alert("Registro falho", data.message);
     }
     setLoading(false);
+  }
+
+  function getLocation() {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        ({ coords }) => {
+          resolve(coords);
+        },
+        (error) => {
+          reject(error);
+        },
+        { enableHighAccuracy: true, }
+      );
+    });
   }
 
   return (
@@ -88,7 +103,7 @@ export default function SignUp() {
           onChangeText={setTechs}
           autoCapitalize="words"
           multiline={true}
-          
+
         />
 
         <UseGithubCheckboxButton
@@ -114,8 +129,8 @@ export default function SignUp() {
             {loading ? (
               <SignUpIndicator />
             ) : (
-              <SignUpButtonText>Registrar</SignUpButtonText>
-            )}
+                <SignUpButtonText>Registrar</SignUpButtonText>
+              )}
           </SignUpButtonBackground>
         </SignUpButton>
       </FormContainer>

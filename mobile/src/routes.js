@@ -3,7 +3,7 @@ import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createBottomTabNavigator } from "react-navigation-tabs";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
-// import Main from "./pages/Main";
+import Main from "./pages/Main";
 import Profile from "./pages/Profile";
 import Map from "./pages/Map";
 import Home from "./pages/Home";
@@ -11,30 +11,33 @@ import MyProfile from "./pages/MyProfile";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 
-// const appRoutes = createStackNavigator(
-//   {
-//     Main: {
-//       screen: Main,
-//       navigationOptions: {
-//         title: "Dev Around"
-//       }
-//     },
-//     Profile: {
-//       screen: Profile,
-//       navigationOptions: {
-//         title: "Perfil"
-//       }
-//     }
-//   },
-//   {
-//     defaultNavigationOptions: {
-//       headerStyle: {
-//         backgroundColor: "#7D40e7"
-//       },
-//       headerTintColor: "#fff"
-//     }
-//   }
-// );
+import MapTabButton from './components/MapTabButton';
+
+const mapRoutes = createStackNavigator(
+  {
+    Main: {
+      screen: Main,
+      navigationOptions: {
+        title: "Dev Around",
+        header: () => null,
+      }
+    },
+    Profile: {
+      screen: Profile,
+      navigationOptions: {
+        title: "Perfil"
+      }
+    }
+  },
+  {
+    defaultNavigationOptions: {
+      headerStyle: {
+        backgroundColor: "#7D40e7"
+      },
+      headerTintColor: "#fff"
+    }
+  }
+);
 
 const appRoutes = createBottomTabNavigator(
   {
@@ -51,16 +54,12 @@ const appRoutes = createBottomTabNavigator(
       }
     },
     Map: {
-      screen: Map,
+      screen: mapRoutes,
       navigationOptions: {
         title: "Mapa",
-        tabBarIcon: ({ focused, tintColor }) => (
-          <FontAwesome
-            name={focused ? "map" : `map-o`}
-            size={24}
-            color={tintColor}
-          />
-        )
+        tabBarButtonComponent: (props) => (
+          <MapTabButton {...props} />
+        ),
       }
     },
     MyProfile: {
@@ -78,32 +77,27 @@ const appRoutes = createBottomTabNavigator(
     }
   },
   {
+    initialRouteName: 'Map',
     tabBarOptions: {
       activeTintColor: "#7D40e7",
       allowFontScaling: true,
       labelStyle: {
         fontWeight: "bold"
       },
-      keyboardHidesTabBar: true
+      style: {
+        borderTopColor: '#f0f0f0',
+        elevation: 4,
+      },
+      keyboardHidesTabBar: true,
     }
   }
 );
-
-function getTabIcon({ name, focused, tintColor }) {
-  return (
-    <FontAwesome
-      name={focused ? name : `${name}-o`}
-      size={24}
-      color={tintColor}
-    />
-  );
-}
 
 const loginRoutes = createStackNavigator({
   Login: {
     screen: Login,
     navigationOptions: {
-      header: null
+      header: () => null
     }
   },
   SignUp: {
