@@ -10,15 +10,11 @@ import {
   TextInput
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import MapView, { Marker, Callout } from "react-native-maps";
-import {
-  requestPermissionsAsync,
-  getCurrentPositionAsync,
-  watchPositionAsync,
-  Accuracy
-} from "expo-location";
+import MapView from "react-native-maps";
+import { requestPermissionsAsync, getCurrentPositionAsync } from "expo-location";
 
 import api from "./../../services/api";
+import UserMarker from '../../components/UserMarker';
 import { connect, subscribeToNewUser, disconnect } from "../../services/socket";
 
 export default function Main({ navigation }) {
@@ -72,8 +68,6 @@ export default function Main({ navigation }) {
         setCurrentRegion({
           latitude,
           longitude,
-          latitudeDelta: 0.004,
-          longitudeDelta: 0.004
         });
       }
     }
@@ -133,9 +127,7 @@ export default function Main({ navigation }) {
         const { longitude, latitude } = coords;
         setCurrentRegion({
           latitude,
-          longitude,
-          latitudeDelta: 0.004,
-          longitudeDelta: 0.004
+          longitude
         });
       },
       (error) => {
@@ -154,60 +146,33 @@ export default function Main({ navigation }) {
     <>
       <MapView
         style={styles.map}
-        initialRegion={currentRegion}
-        region={currentRegion}
+        initialRegion={{
+          ...currentRegion,
+          latitudeDelta: 0.0068,
+          longitudeDelta: 0.0068
+        }}
+        region={{
+          ...currentRegion,
+          latitudeDelta: 0.0068,
+          longitudeDelta: 0.0068
+        }}
         onRegionChangeComplete={handleRegionChange}
       >
         {
           user && (
-            <Marker
-              key={user._id}
-              coordinate={{
-                longitude: curUserPosition.longitude,
-                latitude: curUserPosition.latitude
+            <UserMarker isCurrentUser={true}
+              calloutOnPress={() => handleGoToProfile(user.username)}
+              user={{
+                ...user,
+                location: {
+                  coordinates: [curUserPosition.longitude, curUserPosition.latitude]
+                }
               }}
-            >
-              <Image
-                style={[styles.avatar, { borderColor: "#7d40e7" }]}
-                source={{
-                  uri: user.avatar_url
-                }}
-              />
-              <Callout onPress={() => handleGoToProfile(user.username)}>
-                <View style={styles.callout}>
-                  <Text style={styles.userName}>{user.name}</Text>
-                  <Text style={styles.bio}>{user.bio}</Text>
-                  <Text style={styles.techs}>{[user.techs || []].join(",")}</Text>
-                </View>
-              </Callout>
-            </Marker>
+            />
           )
         }
 
-
-        {devs.map(dev => (
-          <Marker
-            key={dev._id}
-            coordinate={{
-              longitude: dev.location.coordinates[0],
-              latitude: dev.location.coordinates[1]
-            }}
-          >
-            <Image
-              style={styles.avatar}
-              source={{
-                uri: dev.avatar_url
-              }}
-            />
-            <Callout onPress={() => handleGoToProfile(dev.username)}>
-              <View style={styles.callout}>
-                <Text style={styles.userName}>{dev.name}</Text>
-                <Text style={styles.bio}>{dev.bio}</Text>
-                <Text style={styles.techs}>{dev.techs.join(",")}</Text>
-              </View>
-            </Callout>
-          </Marker>
-        ))}
+        {devs.map(dev => <UserMarker user={dev} calloutOnPress={() => handleGoToProfile(dev.username)} />)}
       </MapView>
 
       <View insets={insets} style={[styles.searchContainer, { marginTop: insets.top + 8 }]}>
